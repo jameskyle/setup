@@ -33,7 +33,7 @@ ssh_authorized_key {$authorized_key_comment:
 }
 
 file {"/etc/sudoers.d/jkyle":
-  mode => 0600,
+  mode => 0440,
   owner => root,
   group => root,
   content => "jkyle ALL = (ALL) NOPASSWD: ALL",
