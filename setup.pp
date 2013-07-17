@@ -82,10 +82,10 @@ exec {'get-devstack':
 }
 
 file {"/home/${user}/devstack/localrc":
-  mode => 0644,
-  user => $user,
-  group => $user,
-  conent => "# vim: set ft=sh
+  mode    => 0644,
+  user    => $user,
+  group   => $user,
+  content => "# vim: set ft=sh
   disable_service n-net
   enable_service q-svc
   enable_service q-agt
