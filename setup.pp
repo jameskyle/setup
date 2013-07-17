@@ -72,3 +72,34 @@ exec {"setup-home":
   provider => "shell",
   require  => [Package['git'], File['/tmp/setup.sh'], User[$user]],
 }
+
+exec {'get-devstack':
+  cwd     => "/home/${user}",
+  creates => "/home/${user}/devstack",
+  user    => $user,
+  command => "/usr/bin/git clone https://github.com/openstack-dev/devstack.git",
+  require => [Package['git'], User[$user]],
+}
+
+file {"/home/${user}/devstack/localrc":
+  mode => 0644,
+  user => $user,
+  group => $user,
+  conent => "# vim: set ft=sh
+  disable_service n-net
+  enable_service q-svc
+  enable_service q-agt
+  enable_service q-dhcp
+  enable_service q-l3
+  enable_service q-meta
+  enable_service quantum
+  # Optional, to enable tempest configuration as part of devstack
+  enable_service tempest
+  DATABASE_PASSWORD=demo
+  RABBIT_PASSWORD=demo
+  SERVICE_TOKEN=demo
+  SERVICE_PASSWORD=demo
+  ADMIN_PASSWORD=demo
+",
+  require => Exec['get-devstack'],
+}
