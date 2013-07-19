@@ -3,13 +3,31 @@ $authorized_key_comment = "jkyle@Air-Protoss.local"
 $authorized_key_type = "ssh-rsa"
 $authorized_key = "AAAAB3NzaC1yc2EAAAADAQABAAABAQC/KTbhKZEL19BhHovHamtMLJNv85nC1GKpRvp3PAI1xEvze63cTwC43HqbvBJEWIyMQYTZDfHxujJSxy2KMvwU96fVhxQbA+SieMskxjlujXiU0WAwIlzo+5dZhgdMwTX0YUD5NwkVoELG/wAFiOZ0f4gbjOK8ossHGGNWGYl5b/pFbzb4ih2y+3LM80s8KBj3CF5bJS57fkhiYAwPIyWnqMgcaVsAcfL7XXPZsabzH9eVMmngfwimMkn0wzujuGrtw+bFGoEfDyD2HeY/bEn7eoBO9AMiyR25a5fIYvniRiOKCNkzSQeZfj5S45+SS82YZc7qtuZzRPmNyVkgFDLx"
 
-package {['zsh','git']: }
 
 $groups = $operatingsystem ? {
-  'RedHat'            => ['adm', 'wheel'], 
-  'CentOS'            => ['adm', 'wheel'],  
+  /^(RedHat|Centos)$/ => ['adm', 'wheel'],
   /^(Debian|Ubuntu)$/ => ['adm', 'sudo'],
 }
+
+$packages = $operatingsystem ? {
+  /^(RedHat|Centos)$/ => ['zsh', 'git'],
+  /^(Debian|Ubuntu)$/ => ['zsh', 'git', 'git-flow', 'virtualenvwrapper', 
+                          'python-pip', 'git-review'],
+}
+
+if $operatingsystem =~ /^(RedHat|Centos)$/ {
+  exec {'get-gitflow-installer':
+    cwd     => "/tmp",
+    command => "/usr/bin/curl -O https://raw.github.com/nvie/gitflow/develop/contrib/gitflow-installer.sh",
+    creates => "/tmp/gitflow-installer.sh",
+  }
+  exec {'install-gitflow':
+    cwd     =>  '/tmp',
+    command => "/bin/bash gitflow-installer.sh",
+    require => Exec['get-gitflow-installer'],
+  }
+}
+package {$packages: }
 
 user { $user:
   ensure      => present,
@@ -86,20 +104,20 @@ file {"/home/${user}/devstack/localrc":
   owner   => $user,
   group   => $user,
   content => "# vim: set ft=sh
-  disable_service n-net
-  enable_service q-svc
-  enable_service q-agt
-  enable_service q-dhcp
-  enable_service q-l3
-  enable_service q-meta
-  enable_service quantum
-  # Optional, to enable tempest configuration as part of devstack
-  enable_service tempest
-  DATABASE_PASSWORD=demo
-  RABBIT_PASSWORD=demo
-  SERVICE_TOKEN=demo
-  SERVICE_PASSWORD=demo
-  ADMIN_PASSWORD=demo
+disable_service n-net
+enable_service q-svc
+enable_service q-agt
+enable_service q-dhcp
+enable_service q-l3
+enable_service q-meta
+enable_service quantum
+# Optional, to enable tempest configuration as part of devstack
+enable_service tempest
+DATABASE_PASSWORD=demo
+RABBIT_PASSWORD=demo
+SERVICE_TOKEN=demo
+SERVICE_PASSWORD=demo
+ADMIN_PASSWORD=demo
 ",
   require => Exec['get-devstack'],
 }
