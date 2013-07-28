@@ -26,7 +26,7 @@ yum remove wireless-tools \
 useradd -G adm vagrant
 passwd vagrant
 
-echo "NETWORKING=yes\nHOSTNAME=vagrant.virtual\n" > /etc/sysconfig/network
+echo -e "NETWORKING=yes\nHOSTNAME=vagrant.virtual\n" > /etc/sysconfig/network
 
 cat <<EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
 DEVICE="eth0"
@@ -69,3 +69,4 @@ cd vmware-tools-distrib
 yum remove gcc make perl -y
 yum clean headers packages dbcache expire-cache
 rm -rf /tmp/*
+rm /etc/udev/rules.d/70-persistent-net.rules
