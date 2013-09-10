@@ -3,7 +3,13 @@ $authorized_key_comment = "jkyle@Air-Protoss.local"
 $authorized_key_type = "ssh-rsa"
 $authorized_key = "AAAAB3NzaC1yc2EAAAADAQABAAABAQC/KTbhKZEL19BhHovHamtMLJNv85nC1GKpRvp3PAI1xEvze63cTwC43HqbvBJEWIyMQYTZDfHxujJSxy2KMvwU96fVhxQbA+SieMskxjlujXiU0WAwIlzo+5dZhgdMwTX0YUD5NwkVoELG/wAFiOZ0f4gbjOK8ossHGGNWGYl5b/pFbzb4ih2y+3LM80s8KBj3CF5bJS57fkhiYAwPIyWnqMgcaVsAcfL7XXPZsabzH9eVMmngfwimMkn0wzujuGrtw+bFGoEfDyD2HeY/bEn7eoBO9AMiyR25a5fIYvniRiOKCNkzSQeZfj5S45+SS82YZc7qtuZzRPmNyVkgFDLx"
 
-package {['zsh','git']: }
+
+$packages = $::osfamily ? {
+  'RedHat' => ['zsh','git'],
+  'Debian' => ['zsh','git', 'packaging-dev'],
+}
+
+package {$packages: }
 
 $groups = $operatingsystem ? {
   /^(RedHat|Centos)$/ => ['adm', 'wheel'],
@@ -107,12 +113,18 @@ file {"/home/${user}/.dput.cf":
   mode    => 644,
   owner   => $user,
   group   => $user,
-  content => "
-  [atheme]
-  fqdn = ppa.launchpad.net
-  method = sftp
-  incoming = ~jkyle/atheme/ubuntu/
-  login = jkyle
-  "
+  content => "[atheme]
+fqdn = ppa.launchpad.net
+method = sftp
+incoming = ~jkyle/atheme/ubuntu/
+login = jkyle
+"
   require => User[$user]
+}
+
+exec {['/usr/bin/bzr launchpad-login jkyle', 
+       "/usr/bin/bzr whoami 'James Kyle <james@jameskyle.org>'"]:
+  user     => $user,
+  provider => "shell",
+  require  => Package['packaging-dev'],
 }
