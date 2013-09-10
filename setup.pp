@@ -112,7 +112,7 @@ file {"/home/${user}/.dput.cf":
   fqdn = ppa.launchpad.net
   method = sftp
   incoming = ~jkyle/atheme/ubuntu/
-  login = james@jameskyle.org
+  login = jkyle
   "
   require => User[$user]
 }
