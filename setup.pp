@@ -6,8 +6,7 @@ $authorized_key = "AAAAB3NzaC1yc2EAAAADAQABAAABAQC/KTbhKZEL19BhHovHamtMLJNv85nC1
 package {['zsh','git']: }
 
 $groups = $operatingsystem ? {
-  'RedHat'            => ['adm', 'wheel'], 
-  'CentOS'            => ['adm', 'wheel'],  
+  /^(RedHat|Centos)$/ => ['adm', 'wheel'],
   /^(Debian|Ubuntu)$/ => ['adm', 'sudo'],
 }
 
@@ -71,4 +70,49 @@ exec {"setup-home":
   user     => $user,
   provider => "shell",
   require  => [Package['git'], File['/tmp/setup.sh'], User[$user]],
+}
+
+exec {'get-devstack':
+  cwd     => "/home/${user}",
+  creates => "/home/${user}/devstack",
+  user    => $user,
+  command => "/usr/bin/git clone https://github.com/openstack-dev/devstack.git",
+  require => [Package['git'], User[$user]],
+}
+
+file {"/home/${user}/devstack/localrc":
+  mode    => 0644,
+  owner   => $user,
+  group   => $user,
+  content => "# vim: set ft=sh
+disable_service n-net
+enable_service q-svc
+enable_service q-agt
+enable_service q-dhcp
+enable_service q-l3
+enable_service q-meta
+enable_service quantum
+# Optional, to enable tempest configuration as part of devstack
+enable_service tempest
+DATABASE_PASSWORD=demo
+RABBIT_PASSWORD=demo
+SERVICE_TOKEN=demo
+SERVICE_PASSWORD=demo
+ADMIN_PASSWORD=demo
+",
+  require => Exec['get-devstack'],
+}
+
+file {"/home/${user}/.dput.cf":
+  mode    => 644,
+  owner   => $user,
+  group   => $user,
+  content => "
+  [atheme]
+  fqdn = ppa.launchpad.net
+  method = sftp
+  incoming = ~jkyle/atheme/ubuntu/
+  login = jkyle
+  "
+  require => User[$user]
 }
