@@ -6,14 +6,14 @@ $authorized_key = "AAAAB3NzaC1yc2EAAAADAQABAAABAQC/KTbhKZEL19BhHovHamtMLJNv85nC1
 
 $packages = $::osfamily ? {
   'RedHat' => ['zsh','git'],
-  'Debian' => ['zsh','git', 'packaging-dev'],
+  'Debian' => ['zsh','git', 'packaging-dev', 'dh-make'],
 }
 
 package {$packages: }
 
-$groups = $operatingsystem ? {
-  /^(RedHat|Centos)$/ => ['adm', 'wheel'],
-  /^(Debian|Ubuntu)$/ => ['adm', 'sudo'],
+$groups = $::osfamily ? {
+  /RedHat/ => ['adm', 'wheel'],
+  /Debian/ => ['adm', 'sudo'],
 }
 
 user { $user:
