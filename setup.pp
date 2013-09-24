@@ -16,7 +16,7 @@ $groups = $::osfamily ? {
   /Debian/ => ['adm', 'sudo'],
 }
 
-if $operatingsystem =~ /^(RedHat|Centos)$/ {
+if $::osfamily =~ /RedHat/ {
   exec {'get-gitflow-installer':
     cwd     => "/tmp",
     command => "/usr/bin/curl -O https://raw.github.com/nvie/gitflow/develop/contrib/gitflow-installer.sh",
@@ -26,6 +26,26 @@ if $operatingsystem =~ /^(RedHat|Centos)$/ {
     cwd     =>  '/tmp',
     command => "/bin/bash gitflow-installer.sh",
     require => Exec['get-gitflow-installer'],
+  }
+} elsif $::osfamily =~ /Debian/ {
+  file {"/home/${user}/.dput.cf":
+    mode    => 644,
+    owner   => $user,
+    group   => $user,
+    content => "[atheme]
+  fqdn = ppa.launchpad.net
+  method = sftp
+  incoming = ~jkyle/atheme/ubuntu/
+  login = jkyle
+  ",
+    require => User[$user]
+  }
+
+  exec {['/usr/bin/bzr launchpad-login jkyle', 
+         "/usr/bin/bzr whoami 'James Kyle <james@jameskyle.org>'"]:
+    user     => $user,
+    provider => "shell",
+    require  => Package['packaging-dev'],
   }
 }
 
@@ -122,22 +142,3 @@ ADMIN_PASSWORD=demo
   require => Exec['get-devstack'],
 }
 
-file {"/home/${user}/.dput.cf":
-  mode    => 644,
-  owner   => $user,
-  group   => $user,
-  content => "[atheme]
-fqdn = ppa.launchpad.net
-method = sftp
-incoming = ~jkyle/atheme/ubuntu/
-login = jkyle
-",
-  require => User[$user]
-}
-
-exec {['/usr/bin/bzr launchpad-login jkyle', 
-       "/usr/bin/bzr whoami 'James Kyle <james@jameskyle.org>'"]:
-  user     => $user,
-  provider => "shell",
-  require  => Package['packaging-dev'],
-}
