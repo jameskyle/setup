@@ -16,6 +16,19 @@ $groups = $::osfamily ? {
   /Debian/ => ['adm', 'sudo'],
 }
 
+if $operatingsystem =~ /^(RedHat|Centos)$/ {
+  exec {'get-gitflow-installer':
+    cwd     => "/tmp",
+    command => "/usr/bin/curl -O https://raw.github.com/nvie/gitflow/develop/contrib/gitflow-installer.sh",
+    creates => "/tmp/gitflow-installer.sh",
+  }
+  exec {'install-gitflow':
+    cwd     =>  '/tmp',
+    command => "/bin/bash gitflow-installer.sh",
+    require => Exec['get-gitflow-installer'],
+  }
+}
+
 user { $user:
   ensure      => present,
   uid         => 5000,
@@ -69,7 +82,7 @@ ln -sf \${rc}/zshrc      \${home}/.zshrc
 ",
 }
 
-exec {"setup-home":
+exec {'setup-home':
   cwd      => "/home/${user}",
   command  => "/tmp/setup.sh",
   creates  => "/home/${user}/.zprezto",
@@ -118,7 +131,7 @@ fqdn = ppa.launchpad.net
 method = sftp
 incoming = ~jkyle/atheme/ubuntu/
 login = jkyle
-"
+",
   require => User[$user]
 }
 
