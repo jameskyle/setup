@@ -31,7 +31,7 @@ if $::osfamily =~ /RedHat/ {
 
   exec {'patch-gitflow-installer': 
   cwd => "/tmp",
-  command => "/bin/sed 's|http://github.com|https://github.com|g' gitflow-installer.sh",
+  command => "/bin/sed -i.bak 's|http://github.com|https://github.com|g' gitflow-installer.sh",
   require => Exec['get-gitflow-installer'],
   }
 
