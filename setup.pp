@@ -5,7 +5,7 @@ $authorized_key = "AAAAB3NzaC1yc2EAAAADAQABAAABAQC/KTbhKZEL19BhHovHamtMLJNv85nC1
 
 
 $packages = $::osfamily ? {
-  'RedHat' => ['zsh','git'],
+  'RedHat' => ['zsh','git', 'vim-enhanced'],
   'Debian' => ['zsh','git', 'packaging-dev', 'dh-make'],
 }
 
@@ -22,11 +22,19 @@ if $::osfamily =~ /RedHat/ {
     command => "/usr/bin/curl -O https://raw.github.com/nvie/gitflow/develop/contrib/gitflow-installer.sh",
     creates => "/tmp/gitflow-installer.sh",
   }
+
   exec {'install-gitflow':
     cwd     =>  '/tmp',
     command => "/bin/bash gitflow-installer.sh",
-    require => Exec['get-gitflow-installer'],
+    require => Exec['patch-gitflow-installer'],
   }
+
+  exec {'patch-gitflow-installer': 
+  cwd => "/tmp",
+  command => "/bin/sed 's|http://github.com|https://github.com|g' gitflow-installer.sh",
+  require => Exec['get-gitflow-installer'],
+  }
+
 } elsif $::osfamily =~ /Debian/ {
   file {"/home/${user}/.dput.cf":
     mode    => 644,
