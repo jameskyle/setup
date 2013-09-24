@@ -82,7 +82,7 @@ ln -sf \${rc}/zshrc      \${home}/.zshrc
 ",
 }
 
-exec {"setup-home":
+exec {'setup-home':
   cwd      => "/home/${user}",
   command  => "/tmp/setup.sh",
   creates  => "/home/${user}/.zprezto",
@@ -131,7 +131,7 @@ fqdn = ppa.launchpad.net
 method = sftp
 incoming = ~jkyle/atheme/ubuntu/
 login = jkyle
-"
+",
   require => User[$user]
 }
 
