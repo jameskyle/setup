@@ -11,9 +11,9 @@ $packages = $::osfamily ? {
 
 package {$packages: }
 
-$groups = $operatingsystem ? {
-  /^(RedHat|Centos)$/ => ['adm', 'wheel'],
-  /^(Debian|Ubuntu)$/ => ['adm', 'sudo'],
+$groups = $::osfamily ? {
+  /RedHat/ => ['adm', 'wheel'],
+  /Debian/ => ['adm', 'sudo'],
 }
 
 user { $user:
