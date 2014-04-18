@@ -43,13 +43,13 @@ if $::osfamily =~ /RedHat/ {
     content => "[atheme]
   fqdn = ppa.launchpad.net
   method = sftp
-  incoming = ~jkyle/atheme/ubuntu/
-  login = jkyle
+  incoming = ~${user}/atheme/ubuntu/
+  login = ${user}
   ",
     require => User[$user]
   }
 
-  exec {['/usr/bin/bzr launchpad-login jkyle', 
+  exec {["/usr/bin/bzr launchpad-login ${user}", 
          "/usr/bin/bzr whoami 'James Kyle <james@jameskyle.org>'"]:
     user     => $user,
     provider => "shell",
@@ -63,7 +63,7 @@ user { $user:
   gid         => 5000,
   groups      => $groups,
   shell       => '/bin/zsh',
-  home        => "/home/$user",
+  home        => "/home/${user}",
   managehome  => true,
   password    => '*',
   require     => Group[$user],
@@ -78,11 +78,11 @@ ssh_authorized_key {$authorized_key_comment:
   require => User[$user],
 }
 
-file {"/etc/sudoers.d/jkyle":
+file {"/etc/sudoers.d/${user}":
   mode => 0440,
   owner => root,
   group => root,
-  content => "jkyle ALL = (ALL) NOPASSWD: ALL",
+  content => "${user} ALL = (ALL) NOPASSWD: ALL",
 }
 
 file {'/tmp/setup.sh':
@@ -94,7 +94,7 @@ file {'/tmp/setup.sh':
 home=\"/home/${user}\"
 rc=\"\${home}/.zprezto/runcoms\"
 
-/usr/bin/git clone https://bitbucket.org/jkyle/prezto.git .zprezto 
+/usr/bin/git clone https://bitbucket.org/${user}/prezto.git .zprezto 
 cd .zprezto
 /usr/bin/git checkout -b develop origin/develop
 /usr/bin/git submodule init

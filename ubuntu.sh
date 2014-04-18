@@ -1,5 +1,8 @@
 #!/bin/bash
+set -ex
 
+apt-get update
+apt-get install wget
 
 wget http://apt.puppetlabs.com/puppetlabs-release-precise.deb
 dpkg -i puppetlabs-release-precise.deb
