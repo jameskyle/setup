@@ -4,7 +4,7 @@ set -ex
 apt-get update
 apt-get install wget
 
-wget http://apt.puppetlabs.com/puppetlabs-release-precise.deb
+wget http://apt.puppetlabs.com/puppetlabs-release-`lsb_release -c -s`.deb
 dpkg -i puppetlabs-release-precise.deb
 apt-get update
 apt-get dist-upgrade -y
