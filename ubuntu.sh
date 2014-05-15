@@ -3,9 +3,9 @@ set -ex
 
 apt-get update
 apt-get install wget
-
-wget http://apt.puppetlabs.com/puppetlabs-release-`lsb_release -c -s`.deb
-dpkg -i puppetlabs-release-precise.deb
+codename=`lsb_release -c -s`
+wget http://apt.puppetlabs.com/puppetlabs-release-${codename}.deb
+dpkg -i puppetlabs-release-${codename}.deb
 apt-get update
 apt-get dist-upgrade -y
 apt-get install puppet -y
