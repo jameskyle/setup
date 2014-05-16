@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 
-if ! `which puppet`;then
+if ! `which puppet` 2>&1 > /dev/null;then
     codename=`lsb_release -c -s`
     apt-get autoremove --purge -y
     apt-get update
